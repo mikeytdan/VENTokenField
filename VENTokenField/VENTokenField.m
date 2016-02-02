@@ -90,7 +90,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     _autocorrectionType = UITextAutocorrectionTypeNo;
     _autocapitalizationType = UITextAutocapitalizationTypeSentences;
     self.maxHeight = VENTokenFieldDefaultMaxHeight;
-    self.verticalInset = VENTokenFieldDefaultVerticalInset;
+    self.topInset = VENTokenFieldDefaultVerticalInset;
+    self.bottomInset = VENTokenFieldDefaultVerticalInset;
     self.horizontalInset = VENTokenFieldDefaultHorizontalInset;
     self.tokenPadding = VENTokenFieldDefaultTokenPadding;
     self.minInputWidth = VENTokenFieldDefaultMinInputWidth;
@@ -106,7 +107,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     // Add invisible text field to handle backspace when we don't have a real first responder.
     [self layoutInvisibleTextField];
     
-    [self layoutScrollView];
+    [self setupScrollView];
     [self reloadData];
 }
 
@@ -145,7 +146,15 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (void)setToLabelText:(NSString *)toLabelText
 {
+    _toLabelAttributedText = nil;
     _toLabelText = toLabelText;
+    [self reloadData];
+}
+
+- (void)setToLabelAttributedText:(NSAttributedString *)toLabelAttributedString
+{
+    _toLabelText = nil;
+    _toLabelAttributedText = toLabelAttributedString;
     [self reloadData];
 }
 
@@ -187,7 +196,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    self.scrollView.contentSize = CGSizeMake(CGRectGetWidth(self.frame) - self.horizontalInset * 2, CGRectGetHeight(self.frame) - self.verticalInset * 2);
+    self.scrollView.contentSize = CGSizeMake(CGRectGetWidth(self.frame) - self.horizontalInset * 2, CGRectGetHeight(self.frame) - (self.topInset + self.bottomInset));
     if ([self isCollapsed]) {
         [self layoutCollapsedLabel];
     } else {
@@ -202,7 +211,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     [self setHeight:self.originalHeight];
     
     CGFloat currentX = 0;
-    [self layoutToLabelInView:self origin:CGPointMake(self.horizontalInset, self.verticalInset) currentX:&currentX];
+    [self layoutToLabelInView:self origin:CGPointMake(self.horizontalInset, self.topInset) currentX:&currentX];
     [self layoutCollapsedLabelWithCurrentX:&currentX];
     
     self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
@@ -247,20 +256,21 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     return self.collapsedLabel.superview != nil;
 }
 
+- (void)setupScrollView {
+    self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame))];
+    self.scrollView.scrollsToTop = NO;
+    [self layoutScrollView];
+    self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    [self addSubview:self.scrollView];
+}
+
 - (void)layoutScrollView
 {
-    BOOL createScrollView = self.scrollView == nil;
-    self.scrollView = createScrollView ? [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame))] : self.scrollView;
-    self.scrollView.scrollsToTop = NO;
-    self.scrollView.contentSize = CGSizeMake(CGRectGetWidth(self.frame) - self.horizontalInset * 2, CGRectGetHeight(self.frame) - self.verticalInset * 2);
-    self.scrollView.contentInset = UIEdgeInsetsMake(self.verticalInset,
+    self.scrollView.contentSize = CGSizeMake(CGRectGetWidth(self.frame) - self.horizontalInset * 2, CGRectGetHeight(self.frame) - (self.topInset + self.bottomInset));
+    self.scrollView.contentInset = UIEdgeInsetsMake(self.topInset,
                                                     self.horizontalInset,
-                                                    self.verticalInset,
+                                                    self.self.bottomInset,
                                                     self.horizontalInset);
-    self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    if (createScrollView) {
-        [self addSubview:self.scrollView];
-    }
 }
 
 - (void)layoutInputTextFieldWithCurrentX:(CGFloat *)currentX currentY:(CGFloat *)currentY clearInput:(BOOL)clearInput
@@ -383,7 +393,9 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         [_toLabel sizeToFit];
         [_toLabel setHeight:[self heightForToken]];
     }
-    if (!_toLabel.attributedText && ![_toLabel.text isEqualToString:_toLabelText]) {
+    if(_toLabelAttributedText && _toLabel.attributedText != _toLabelAttributedText) {
+        _toLabel.attributedText = _toLabelAttributedText;
+    } else if (![_toLabel.text isEqualToString:_toLabelText]) {
         _toLabel.text = _toLabelText;
     }
     return _toLabel;
@@ -395,13 +407,13 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     CGFloat height;
     if (currentY + [self heightForToken] > CGRectGetHeight(self.frame)) { // needs to grow
         if (currentY + [self heightForToken] <= self.maxHeight) {
-            height = currentY + [self heightForToken] + self.verticalInset * 2;
+            height = currentY + [self heightForToken] + (self.topInset + self.bottomInset);
         } else {
             height = self.maxHeight;
         }
     } else { // needs to shrink
         if (currentY + [self heightForToken] > self.originalHeight) {
-            height = currentY + [self heightForToken] + self.verticalInset * 2;
+            height = currentY + [self heightForToken] + (self.topInset + self.bottomInset);
         } else {
             height = self.originalHeight;
         }

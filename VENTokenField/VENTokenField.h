@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 - (void)tokenField:(VENTokenField *)tokenField didEnterText:(NSString *)text;
 - (void)tokenField:(VENTokenField *)tokenField didDeleteTokenAtIndex:(NSUInteger)index;
-- (void)tokenField:(VENTokenField *)tokenField didChangeText:(nullable NSString *)text;
+- (void)tokenField:(VENTokenField *)tokenField didChangeText:(NSString *)text; // Removed nullable NSString for backwards compatability
 - (void)tokenFieldDidBeginEditing:(VENTokenField *)tokenField;
 - (void)tokenField:(VENTokenField *)tokenField didChangeContentHeight:(CGFloat)height;
 @end
@@ -61,7 +61,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 
 @property (assign, nonatomic) CGFloat maxHeight;
-@property (assign, nonatomic) CGFloat verticalInset;
+@property (assign, nonatomic) CGFloat topInset;
+@property (assign, nonatomic) CGFloat bottomInset;
 @property (assign, nonatomic) CGFloat horizontalInset;
 @property (assign, nonatomic) CGFloat tokenPadding;
 @property (assign, nonatomic) CGFloat minInputWidth;
@@ -71,17 +72,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (assign, nonatomic) UITextAutocorrectionType autocorrectionType;
 @property (assign, nonatomic) UITextAutocapitalizationType autocapitalizationType;
-@property (assign, nonatomic, nullable) UIView *inputTextFieldAccessoryView;
+@property (assign, nonatomic) UIView *inputTextFieldAccessoryView; // Removed nullable for backwards compatability
 @property (strong, nonatomic) UIColor *toLabelTextColor;
-@property (strong, nonatomic, nullable) NSString *toLabelText;
+@property (strong, nonatomic) NSString *toLabelText; // Removed nullable for backwards compatability
+@property (strong, nonatomic) NSAttributedString *toLabelAttributedText; // Removed nullable for backwards compatability
 @property (strong, nonatomic) UIColor *inputTextFieldTextColor;
 @property (strong, nonatomic) UIFont *inputTextFieldFont;
 
 @property (strong, nonatomic) UILabel *toLabel;
 
-@property (strong, nonatomic, nullable) NSArray *delimiters;
-@property (copy, nonatomic, nullable) NSString *placeholderText;
-@property (copy, nonatomic, nullable) NSString *inputTextFieldAccessibilityLabel;
+@property (strong, nonatomic) NSArray *delimiters; // Removed nullable for backwards compatability
+@property (copy, nonatomic) NSString *placeholderText; // Removed nullable for backwards compatability
+@property (copy, nonatomic) NSString *inputTextFieldAccessibilityLabel; // Removed nullable for backwards compatability
 
 - (void)setColorScheme:(UIColor *)color;
 - (void)layoutScrollView;
