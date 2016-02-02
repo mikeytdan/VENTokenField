@@ -42,7 +42,7 @@
 
 - (void)setUpInit
 {
-    self.backgroundView.layer.cornerRadius = 5;
+    self.backgroundView.layer.cornerRadius = self.backgroundView.frame.size.height / 2;
     self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapToken:)];
     self.colorScheme = [UIColor blueColor];
     self.titleLabel.textColor = self.colorScheme;
@@ -62,9 +62,9 @@
 {
     _highlighted = highlighted;
     UIColor *textColor = highlighted ? [UIColor whiteColor] : self.colorScheme;
-    UIColor *backgroundColor = highlighted ? self.colorScheme : [UIColor clearColor];
+    UIColor *backgroundColor = highlighted ? self.highlightColorScheme : [UIColor clearColor];
     self.titleLabel.textColor = textColor;
-    self.backgroundView.backgroundColor = backgroundColor;
+    self.backgroundView.backgroundColor = backgroundColor ?: self.colorScheme;
 }
 
 - (void)setColorScheme:(UIColor *)colorScheme
@@ -74,6 +74,13 @@
     [self setHighlighted:_highlighted];
 }
 
+- (void)setFont:(UIFont *)font {
+    self.titleLabel.font = font;
+}
+
+- (UIFont *)font {
+    return self.titleLabel.font;
+}
 
 #pragma mark - Private
 

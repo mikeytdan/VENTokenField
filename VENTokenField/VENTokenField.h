@@ -40,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)numberOfTokensInTokenField:(VENTokenField *)tokenField;
 - (NSString *)tokenFieldCollapsedText:(VENTokenField *)tokenField;
 - (UIColor *)tokenField:(VENTokenField *)tokenField colorSchemeForTokenAtIndex:(NSUInteger)index;
+- (UIColor *)tokenField:(VENTokenField *)tokenField colorSchemeForHighlightedTokenAtIndex:(NSUInteger)index;
+- (UIFont *)tokenField:(VENTokenField *)tokenField fontForTokenAtIndex:(NSUInteger)index;
 @end
 
 
@@ -72,7 +74,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (assign, nonatomic, nullable) UIView *inputTextFieldAccessoryView;
 @property (strong, nonatomic) UIColor *toLabelTextColor;
 @property (strong, nonatomic, nullable) NSString *toLabelText;
+@property (strong, nonatomic, nullable) NSAttributedString *toLabelAttributedText;
 @property (strong, nonatomic) UIColor *inputTextFieldTextColor;
+@property (strong, nonatomic) UIFont *inputTextFieldFont;
 
 @property (strong, nonatomic) UILabel *toLabel;
 
@@ -81,6 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (copy, nonatomic, nullable) NSString *inputTextFieldAccessibilityLabel;
 
 - (void)setColorScheme:(UIColor *)color;
+- (void)layoutScrollView;
 
 @end
 
