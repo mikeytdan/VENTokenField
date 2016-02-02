@@ -50,6 +50,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 @implementation VENTokenField
 
+@synthesize inputTextFieldFont = _inputTextFieldFont;
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -247,7 +249,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (void)layoutScrollView
 {
-    self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame))];
+    BOOL createScrollView = self.scrollView == nil;
+    self.scrollView = createScrollView ? [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame))] : self.scrollView;
     self.scrollView.scrollsToTop = NO;
     self.scrollView.contentSize = CGSizeMake(CGRectGetWidth(self.frame) - self.horizontalInset * 2, CGRectGetHeight(self.frame) - self.verticalInset * 2);
     self.scrollView.contentInset = UIEdgeInsetsMake(self.verticalInset,
@@ -255,8 +258,9 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
                                                     self.verticalInset,
                                                     self.horizontalInset);
     self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    
-    [self addSubview:self.scrollView];
+    if (createScrollView) {
+        [self addSubview:self.scrollView];
+    }
 }
 
 - (void)layoutInputTextFieldWithCurrentX:(CGFloat *)currentX currentY:(CGFloat *)currentY clearInput:(BOOL)clearInput
@@ -299,11 +303,10 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     
     [self.toLabel sizeToFit];
     newFrame.size.width = CGRectGetWidth(self.toLabel.frame);
-    
     self.toLabel.frame = newFrame;
     
     [view addSubview:self.toLabel];
-    *currentX += self.toLabel.hidden ? CGRectGetMinX(self.toLabel.frame) : CGRectGetMaxX(self.toLabel.frame) + VENTokenFieldDefaultToLabelPadding;
+    *currentX += self.toLabel.hidden ? CGRectGetMinX(self.toLabel.frame) : CGRectGetMaxX(self.toLabel.frame) + VENTokenFieldDefaultToLabelPadding + 10;
 }
 
 - (void)layoutTokensWithCurrentX:(CGFloat *)currentX currentY:(CGFloat *)currentY
@@ -380,7 +383,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         [_toLabel sizeToFit];
         [_toLabel setHeight:[self heightForToken]];
     }
-    if (![_toLabel.text isEqualToString:_toLabelText]) {
+    if (!_toLabel.attributedText && ![_toLabel.text isEqualToString:_toLabelText]) {
         _toLabel.text = _toLabelText;
     }
     return _toLabel;
