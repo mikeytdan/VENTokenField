@@ -27,8 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface VENToken : UIView
 
 @property (assign, nonatomic) BOOL highlighted;
-@property (copy, nonatomic, nullable) void (^didTapTokenBlock) (void);
+@property (copy, nonatomic) void (^didTapTokenBlock) (void); // Removed nullable for backwards compatability
 @property (strong, nonatomic) UIColor *colorScheme;
+@property (strong, nonatomic) UIColor *highlightColorScheme;
+@property (strong, nonatomic) UIFont *font;
 
 - (void)setTitleText:(NSString *)text;
 
