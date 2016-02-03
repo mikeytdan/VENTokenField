@@ -44,6 +44,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 @property (strong, nonatomic) VENBackspaceTextField *inputTextField;
 @property (strong, nonatomic) UIColor *colorScheme;
 @property (strong, nonatomic) UILabel *collapsedLabel;
+@property (nonatomic) BOOL hasFocus;
 
 @end
 
@@ -368,6 +369,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     [self.invisibleTextField setAutocorrectionType:self.autocorrectionType];
     [self.invisibleTextField setAutocapitalizationType:self.autocapitalizationType];
     self.invisibleTextField.backspaceDelegate = self;
+    self.invisibleTextField.delegate = self;
     [self addSubview:self.invisibleTextField];
 }
 
@@ -376,8 +378,10 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     if (self.inputTextField.isFirstResponder) {
         return;
     }
-    
     [self.inputTextField becomeFirstResponder];
+    if(self.hasFocus) { // Already notified that the token field began editing
+        return;
+    }
     if ([self.delegate respondsToSelector:@selector(tokenFieldDidBeginEditing:)]) {
         [self.delegate tokenFieldDidBeginEditing:self];
     }
@@ -501,8 +505,6 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     for (VENToken *token in self.tokens) {
         token.highlighted = NO;
     }
-    
-    [self setCursorVisibility];
 }
 
 - (void)setCursorVisibility
@@ -594,6 +596,9 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
+    if(textField == self.invisibleTextField) {
+        return YES;
+    }
     if ([self.delegate respondsToSelector:@selector(tokenField:didEnterText:)]) {
         if ([textField.text length]) {
             [self.delegate tokenField:self didEnterText:textField.text];
@@ -607,12 +612,38 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 {
     if (textField == self.inputTextField) {
         [self unhighlightAllTokens];
+        [self setCursorVisibility];
     }
+    if(!self.hasFocus) { // Only call tokenFieldDidBeginEditing when the token field doesn't have focus
+        self.hasFocus = YES;
+        if(self.delegate && [self.delegate respondsToSelector:@selector(tokenFieldDidEndEditing:)]) {
+            [self.delegate tokenFieldDidBeginEditing:self];
+        }
+    }
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    if(textField == self.invisibleTextField) {
+        [self unhighlightAllTokens];
+    }
+    // Process the block code on the next cycle to give the inputTextField or invisibleTextField a chance to become first responder in case we are just switching textfields
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if(![self.inputTextField isFirstResponder] && ![self.invisibleTextField isFirstResponder]) {
+            self.hasFocus = NO;
+            if(self.delegate && [self.delegate respondsToSelector:@selector(tokenFieldDidEndEditing:)]) {
+                [self.delegate tokenFieldDidEndEditing:self];
+            }
+        }
+    });
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
+    if(textField == self.invisibleTextField) {
+        return YES;
+    }
     [self unhighlightAllTokens];
+    [self setCursorVisibility];
     NSString *newString = [textField.text stringByReplacingCharactersInRange:range withString:string];
     for (NSString *delimiter in self.delimiters) {
         if (newString.length > delimiter.length &&

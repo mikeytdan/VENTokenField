@@ -30,8 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)tokenField:(VENTokenField *)tokenField didEnterText:(NSString *)text;
 - (void)tokenField:(VENTokenField *)tokenField didDeleteTokenAtIndex:(NSUInteger)index;
 - (void)tokenField:(VENTokenField *)tokenField didChangeText:(NSString *)text; // Removed nullable NSString for backwards compatability
-- (void)tokenFieldDidBeginEditing:(VENTokenField *)tokenField;
 - (void)tokenField:(VENTokenField *)tokenField didChangeContentHeight:(CGFloat)height;
+- (void)tokenFieldDidBeginEditing:(VENTokenField *)tokenField;
+- (void)tokenFieldDidEndEditing:(VENTokenField *)tokenField;
 @end
 
 @protocol VENTokenFieldDataSource <NSObject>
