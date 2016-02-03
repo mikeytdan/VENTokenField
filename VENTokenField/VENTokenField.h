@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)reloadData;
 - (void)collapse;
-- (nullable NSString *)inputText;
+- (NSString *)inputText; // Removed nullable NSString for backwards compatability
 
 
 /**-----------------------------------------------------------------------------
