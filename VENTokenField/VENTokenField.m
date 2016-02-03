@@ -44,7 +44,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 @property (strong, nonatomic) VENBackspaceTextField *inputTextField;
 @property (strong, nonatomic) UIColor *colorScheme;
 @property (strong, nonatomic) UILabel *collapsedLabel;
-@property (nonatomic) BOOL hasFocus;
+@property (nonatomic) BOOL hasFocus; // Set to YES when an input field gains focus for the first time and is set to NO when all lose focus. Used to properly call the tokenFieldDidBeginEditing: and tokenFieldDidEndEditing: methods
 
 @end
 
@@ -491,7 +491,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 - (void)didTapToken:(VENToken *)token
 {
     for (VENToken *aToken in self.tokens) {
-        if (aToken == token) {
+        if ([aToken isEqual:token]) {
             aToken.highlighted = !aToken.highlighted;
         } else {
             aToken.highlighted = NO;
@@ -596,7 +596,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
-    if(textField == self.invisibleTextField) {
+    if([textField isEqual:self.invisibleTextField]) {
         return YES;
     }
     if ([self.delegate respondsToSelector:@selector(tokenField:didEnterText:)]) {
@@ -610,7 +610,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
-    if (textField == self.inputTextField) {
+    if ([textField isEqual:self.inputTextField]) {
         [self unhighlightAllTokens];
         [self setCursorVisibility];
     }
@@ -623,7 +623,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
-    if(textField == self.invisibleTextField) {
+    if([textField isEqual:self.invisibleTextField]) {
         [self unhighlightAllTokens];
     }
     // Process the block code on the next cycle to give the inputTextField or invisibleTextField a chance to become first responder in case we are just switching textfields
@@ -639,7 +639,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    if(textField == self.invisibleTextField) {
+    if([textField isEqual:self.invisibleTextField]) {
         return YES;
     }
     [self unhighlightAllTokens];
