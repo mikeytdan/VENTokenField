@@ -640,7 +640,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
     if([textField isEqual:self.invisibleTextField]) {
-        return YES;
+        return NO;
     }
     [self unhighlightAllTokens];
     [self setCursorVisibility];
