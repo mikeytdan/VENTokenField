@@ -26,12 +26,14 @@
 
 - (BOOL)keyboardInputShouldDelete:(UITextField *)textField
 {
-    if (self.text.length == 0) {
+    BOOL iOS9AndBelow = [[[UIDevice currentDevice] systemVersion] floatValue] < 10.0;
+    if (iOS9AndBelow && self.text.length == 0) {
+        // In iOS10+ the textField:shouldChangeCharactersInRange:replacementString: can handle the backspace
         if ([self.backspaceDelegate respondsToSelector:@selector(textFieldDidEnterBackspace:)]) {
             [self.backspaceDelegate textFieldDidEnterBackspace:self];
         }
     }
-
+    
     return YES;
 }
 
