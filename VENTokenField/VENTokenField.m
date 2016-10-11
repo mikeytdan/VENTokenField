@@ -664,7 +664,6 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     return YES;
 }
 
-
 #pragma mark - VENBackspaceTextFieldDelegate
 
 - (void)textFieldDidEnterBackspace:(VENBackspaceTextField *)textField
