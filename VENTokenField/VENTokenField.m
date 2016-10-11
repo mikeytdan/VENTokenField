@@ -639,12 +639,16 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    if([textField isEqual:self.invisibleTextField]) {
+    NSString *newString = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    BOOL iOS10OrGreater = [[[UIDevice currentDevice] systemVersion] floatValue] >= 10.0;
+    BOOL backspaceWithoutText = textField.text.length == 0 && newString.length == 0;
+    if (iOS10OrGreater && backspaceWithoutText && ([textField isEqual:self.inputTextField] || [textField isEqual:self.invisibleTextField])) {
+        // iOS 10 triggers the shouldChangeCharactersInRange: method when there is no text, previous versions of iOS do not
+        [self textFieldDidEnterBackspace:self.invisibleTextField];
         return NO;
     }
     [self unhighlightAllTokens];
     [self setCursorVisibility];
-    NSString *newString = [textField.text stringByReplacingCharactersInRange:range withString:string];
     for (NSString *delimiter in self.delimiters) {
         if (newString.length > delimiter.length &&
             [[newString substringFromIndex:newString.length - delimiter.length] isEqualToString:delimiter]) {
